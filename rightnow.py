@@ -1,6 +1,13 @@
 import pronouncing
 import random
 import logging
+from twython import Twython, TwythonError
+import time
+
+APP_KEY = os.environ.get('TWYTHON_APP_KEY')
+APP_SECRET = os.environ.get('TWYTHON_APP_SECRET')
+OAUTH_TOKEN = os.environ.get('TWYTHON_OAUTH_TOKEN')
+OAUTH_TOKEN_SECRET = os.environ.get('TWYTHON_OAUTH_TOKEN_SECRET')
 
 twitter_character_limit = 280
 
@@ -111,10 +118,25 @@ def stringify(line):
 def pretty_print():
     thing = split_for_pretty_printing()
     if get_length(thing) > twitter_character_limit:
-        return 1
+        raise TweetTooLongError
     return '\n'.join([stringify(line) for line in thing])
 
 def get_length(one_d_string_array):
     return len('\n'.join([stringify(line) for line in one_d_string_array]))
 
-print(pretty_print())
+def tweet_one():
+    twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    print ("Tweeting...")
+    try:
+        verse = pretty_print()
+        twitter.update_status(status=verse)
+    except TweetTooLongError as e:
+        print(e)
+    except TwythonError as e:
+        print(e)
+
+class TweetTooLongError(Exception):
+    """Raised when the generated verse is too long to fit in a tweet"""
+    pass
+
+tweet_one()

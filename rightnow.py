@@ -34,6 +34,20 @@ joo_joo_eyeball = [
   [4, "mojo filter"],
 ]
 
+feet_down = [
+  "hair down to his knee",
+  "I know you you know me",
+  "feet down below his knee",
+  "one and one and one is three",
+]
+
+armchairs = [
+  "got to be a joker he just do what he please",
+  "one thing I can tell you is you got to be free",
+  "hold you in his armchair you can feel his disease",
+  "got to be good looking coz he's so hard to see"
+]
+
 def generate_he_got(min_syllables = 2):
     he_got = random.choice(pronouns)
     give_two = random.randint(0, 1)
@@ -111,7 +125,7 @@ def generate_line(type = 1):
     return output_array
 
 def generate_feet_down():
-    text = ['feet down below his knees', 'hold him win his armchair you can feel his disease']
+    text = [random.choice(feet_down), random.choice(armchairs)]
     return([' '.join([choose_rhyme_with_same_syllables(word) for word in line.split()]) for line in text])
 
 # Generates a full verse. Comes out as an array of arrays of strings.
@@ -171,5 +185,4 @@ class TweetTooLongError(Exception):
     """Raised when the generated verse is too long to fit in a tweet"""
     pass
 
-# tweet_one()
-print(pretty_print())
+tweet_one()

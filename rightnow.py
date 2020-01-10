@@ -53,6 +53,20 @@ def total_syllables_in_string(text):
         logging.error("Syllables could not be found for %s.", text)
         return False
     
+def count_syllables_for_word(word):
+  return pronouncing.syllable_count(pronouncing.phones_for_word(word)[0])
+
+def rhymes_with_same_syllables(word):
+  syllable_count = count_syllables_for_word(word)
+  rhymes = pronouncing.rhymes(word)
+  return list(filter(lambda w: count_syllables_for_word(w) == syllable_count, rhymes))
+
+def choose_rhyme_with_same_syllables(word):
+  rhymes_with_same_syllables_for_word = rhymes_with_same_syllables(word)
+  if len(rhymes_with_same_syllables_for_word) > 0:
+    return (random.choice(rhymes_with_same_syllables_for_word))
+  return word
+
 # Find a phrase with the same syllables and stresses as one of the phrases
 # used at the start of most lines.
 def generate_joo_joo_eyeball(syllable_count):
@@ -72,7 +86,7 @@ def generate_joo_joo_eyeball(syllable_count):
 # The first line can use 'he' and has 5 syllables (7 if it starts with "he come")
 # The last has an extra "he got" that leads into the break lines
 # The rest have six syllables.
-# Type = 0: first, 1: mid, 2: last (extra he_got)
+# Type = 0: first, 1: mid, 2: last (extra he_got), 3: break (two lines before COME TOGETHER)
 def determine_syllable_limit(he_got, first):
     syllables_in_he_got = he_got[0]
     words = he_got[1].split()
@@ -85,7 +99,9 @@ def determine_syllable_limit(he_got, first):
         return 6
 
 def generate_line(type = 1):
-    first = (type == 0)
+    if type == 3:
+        return generate_feet_down()
+    first = type == 0
     random_he_got = generate_he_got(1 if first else 2)
     syllable_limit = determine_syllable_limit(random_he_got, first)
     syllable_limit -= random_he_got[0]
@@ -94,9 +110,13 @@ def generate_line(type = 1):
         output_array += [generate_he_got(2)[1]]
     return output_array
 
+def generate_feet_down():
+    text = ['feet down below his knees', 'hold him win his armchair you can feel his disease']
+    return([' '.join([choose_rhyme_with_same_syllables(word) for word in line.split()]) for line in text])
+
 # Generates a full verse. Comes out as an array of arrays of strings.
 def generate_verse():
-    return [generate_line(first) for first in [0, 1, 1, 2]]
+    return [generate_line(first) for first in [0, 1, 1, 2, 3]]
 
 # Splits a verse as made by generate_verse as follows:
 # he_got, joo_joo_eyeball, he got
@@ -107,9 +127,9 @@ def split_for_pretty_printing():
     verse = generate_verse()
     flattened_verse = [words for phrase in verse for words in phrase]
     first_line = flattened_verse[:3]
-    other_lines = flattened_verse[3:]
+    other_lines = flattened_verse[3:-2]
     other_lines_paired = list(zip(other_lines[::2], other_lines[1::2]))
-    return [first_line] + other_lines_paired
+    return [first_line] + other_lines_paired + [verse[-1]]
 
 # Converts the arrays representing lines into strings with correct
 # punctuation and capitalisation.
@@ -131,10 +151,10 @@ def pretty_print():
     thing = split_for_pretty_printing()
     if get_length(thing) > twitter_character_limit:
         raise TweetTooLongError
-    return '\n'.join([stringify(line) for line in thing])
+    return '\n'.join([stringify(line) for line in thing[:-1]] + [line.capitalize() for line in thing[-1]])
 
-def get_length(one_d_string_array):
-    return len('\n'.join([stringify(line) for line in one_d_string_array]))
+def get_length(thing):
+    return len('\n'.join([stringify(line) for line in thing[:-1]] + [line.capitalize() for line in thing[-1]]))
 
 def tweet_one():
     twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
@@ -151,4 +171,5 @@ class TweetTooLongError(Exception):
     """Raised when the generated verse is too long to fit in a tweet"""
     pass
 
-tweet_one()
+# tweet_one()
+print(pretty_print())

@@ -37,9 +37,11 @@ joo_joo_eyeball = [
 def generate_he_got(min_syllables = 2):
     he_got = random.choice(pronouns)
     give_two = random.randint(0, 1)
+    syllables = 1
     if min_syllables > 1 or give_two == 1:
         he_got += ' ' + random.choice(verbs)
-    return [1 + give_two, he_got]
+        syllables += 1
+    return [syllables, he_got]
 
 # Typical syllable limit is 4, first line is 5 inc. he
 
@@ -71,10 +73,21 @@ def generate_joo_joo_eyeball(syllable_count):
 # The last has an extra "he got" that leads into the break lines
 # The rest have six syllables.
 # Type = 0: first, 1: mid, 2: last (extra he_got)
+def determine_syllable_limit(he_got, first):
+    syllables_in_he_got = he_got[0]
+    words = he_got[1].split()
+    if first:
+        if syllables_in_he_got == 2 and words[1] == "come":
+            return 7
+        else:
+            return 5
+    else:
+        return 6
+
 def generate_line(type = 1):
-    first = type == 0
+    first = (type == 0)
     random_he_got = generate_he_got(1 if first else 2)
-    syllable_limit = ((7 if (random_he_got[0] == 2 and random_he_got[1].split()[1] == "come") else 5) if first else 6)
+    syllable_limit = determine_syllable_limit(random_he_got, first)
     syllable_limit -= random_he_got[0]
     output_array = [random_he_got[1], generate_joo_joo_eyeball(syllable_limit)]
     if type == 2:

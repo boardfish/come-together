@@ -138,4 +138,4 @@ class TweetTooLongError(Exception):
     """Raised when the generated verse is too long to fit in a tweet"""
     pass
 
-print(pretty_print())
+tweet_one()

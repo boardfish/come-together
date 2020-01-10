@@ -21,6 +21,9 @@ he_got = [
   [2, "he shoot"],
   [2, "he say"],
   [2, "he bag"],
+  [2, "he go"],
+  [2, "they bought"],
+  [2, "we got"],
   [1, "he"],
 ]
 
@@ -140,4 +143,4 @@ class TweetTooLongError(Exception):
     """Raised when the generated verse is too long to fit in a tweet"""
     pass
 
-tweet_one()
+print(pretty_print())

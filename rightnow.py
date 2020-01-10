@@ -12,20 +12,8 @@ OAUTH_TOKEN_SECRET = os.environ.get('TWYTHON_OAUTH_TOKEN_SECRET')
 
 twitter_character_limit = 280
 
-he_got = [
-  [2, "here come"],
-  [2, "he come"],
-  [2, "he got"],
-  [2, "he one"],
-  [2, "he wear"],
-  [2, "he shoot"],
-  [2, "he say"],
-  [2, "he bag"],
-  [2, "he go"],
-  [2, "they bought"],
-  [2, "we got"],
-  [1, "he"],
-]
+pronouns = ["he", "she", "they", "we"]
+verbs = ["come", "got", "one", "wear", "shoot", "say", "bag", "go", "bought"]
 
 joo_joo_eyeball = [
   [3, "old flat top"],
@@ -45,6 +33,13 @@ joo_joo_eyeball = [
   [4, "muddy water"],
   [4, "mojo filter"],
 ]
+
+def generate_he_got(min_syllables = 2):
+    he_got = random.choice(pronouns)
+    give_two = random.randint(0, 1)
+    if min_syllables > 1 or give_two == 1:
+        he_got += ' ' + random.choice(verbs)
+    return [1 + give_two, he_got]
 
 # Typical syllable limit is 4, first line is 5 inc. he
 
@@ -78,12 +73,12 @@ def generate_joo_joo_eyeball(syllable_count):
 # Type = 0: first, 1: mid, 2: last (extra he_got)
 def generate_line(type = 1):
     first = type == 0
-    random_he_got = random.choice(he_got) if first else random.choice(he_got[:-1])
-    syllable_limit = ((7 if (random_he_got[1] == "he come") else 5) if first else 6)
+    random_he_got = generate_he_got(1 if first else 2)
+    syllable_limit = ((7 if (random_he_got[0] == 2 and random_he_got[1].split()[1] == "come") else 5) if first else 6)
     syllable_limit -= random_he_got[0]
     output_array = [random_he_got[1], generate_joo_joo_eyeball(syllable_limit)]
     if type == 2:
-        output_array += [random.choice(he_got[:-1])[1]]
+        output_array += [generate_he_got(2)[1]]
     return output_array
 
 # Generates a full verse. Comes out as an array of arrays of strings.
